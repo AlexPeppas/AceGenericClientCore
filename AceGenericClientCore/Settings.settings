@@ -1,0 +1,30 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
+	<Profiles />
+	<Settings>
+	<Setting Name="client_secret" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">4B17E0AE-732A-4EC0-B8A2-905461D9A178</Value>
+	</Setting>
+	<Setting Name="client_id" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">9E9F8E00-F7CF-4685-A95E-E7DEF4ECD7C8</Value>
+	</Setting>
+	<Setting Name="tokenUrl" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">https://v000080111.nbgit.gr/intranetIdentityFront/connect/token</Value>
+	</Setting>
+	<Setting Name="cacheKeyPrefix" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">TransactionAuthentication_ACE_</Value>
+	</Setting>
+	<Setting Name="grant_type" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">custom_credentials</Value>
+	</Setting>
+	<Setting Name="scope" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">openid ace_profile</Value>
+	</Setting>
+	<Setting Name="user_registry_id" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">5B1F8440-29FD-470F-BA17-A36CD662CDF6</Value>
+	</Setting>
+	<Setting Name="custom_credential_employee_code" Type="System.String" Scope="Application">
+		<Value Profile="(Default)">BANK</Value>
+	</Setting>
+	</Settings>
+</SettingsFile>
