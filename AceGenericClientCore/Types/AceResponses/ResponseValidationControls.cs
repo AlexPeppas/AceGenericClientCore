@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace AceGenericClientFramework
+namespace AceGenericClientFramework.Types
 {
-    public class ResponseValidationControls
+    internal class ResponseValidationControls
     {
         public bool ExecuteTranIfValid { get; set; }
         public bool AllValidationAreFullfiled { get; set; }

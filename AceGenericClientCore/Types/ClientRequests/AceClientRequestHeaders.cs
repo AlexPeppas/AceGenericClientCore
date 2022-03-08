@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace AceGenericClientFramework
+namespace AceGenericClientFramework.Types
 {
-    public class IAceClientRequestHeaders
+    public class AceClientRequestHeaders
     {
         public string UserId { get; set; }
 

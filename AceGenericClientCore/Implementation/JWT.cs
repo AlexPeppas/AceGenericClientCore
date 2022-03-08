@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using AceGenericClientCore.Properties.Settings;
 using System.Threading.Tasks;
+using AceGenericClientCore.Properties.Settings;
 using AceGenericClientFramework.CacheMechanism;
-
+using AceGenericClientFramework.Types;
 
 namespace AceGenericClientFramework.JWTMechanism
 {
-    public static class JWT
+    internal static class JWT
     {
         public static string RetrieveJWT(string user)
         {
@@ -26,7 +26,9 @@ namespace AceGenericClientFramework.JWTMechanism
 
         private static string CacheHelper(string user)
         {
-            string cacheKey = Settings.ClientSettings.cacheKeyPrefix+user.ToString();
+            string cacheKey = Settings.ClientSettings.cacheKeyPrefix;
+            if (user != null)
+                cacheKey += user.ToString();
 
             var cacheValue = Cache.GetCached<CachedJWTValue>(cacheKey);
 
@@ -38,7 +40,7 @@ namespace AceGenericClientFramework.JWTMechanism
                 }
                 catch(Exception ex)
                 {
-                    throw new Exception($"Failed to retrieve JWT,{Environment.NewLine}Details :: {ex.Message}");
+                    throw new Exception($"Failed to retrieve JWT, Error Info : {Environment.NewLine} {ex}");
                 }
                 Cache.UpdateCache<CachedJWTValue>(cacheKey, Convert.ToInt32(cacheValue.expires_in), cacheValue);
             }
@@ -50,8 +52,6 @@ namespace AceGenericClientFramework.JWTMechanism
         {
             var parameters = new Dictionary<string, string>
             {
-                //{ "custom_credential_employee_code",Properties.Settings.ClientSettings.custom_credential_employee_code + $"\\{userId}"},
-                { "custom_credential_employee_code",userId},
                 { "client_id", Settings.ClientSettings.client_id},
                 { "client_secret",Settings.ClientSettings.client_secret},
                 { "grant_type", Settings.ClientSettings.grant_type},
@@ -59,8 +59,12 @@ namespace AceGenericClientFramework.JWTMechanism
                 { "user_registry_id", Settings.ClientSettings.user_registry_id}
             };
 
+            if (userId != null)
+                parameters.Add("custom_credential_employee_code",userId);
+
             string uri = Settings.ClientSettings.tokenUrl;
             string responseToken = string.Empty;
+            
             try
             {
                 using (HttpClient client = new HttpClient { BaseAddress = new Uri(uri) })
@@ -78,8 +82,8 @@ namespace AceGenericClientFramework.JWTMechanism
 
             }
             catch (Exception ex) 
-            { 
-                throw new Exception(ex.Message); 
+            {
+                throw new Exception(ex.ToString());
             }
         }
     }

@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using AceGenericClientFramework.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AceGenericClientFramework.Model
 {
-    public static class ModelConverter
+    internal static class ModelConverter
     {
         public static Tuple<OutputMessage[], CbsInformationMessage[]> ValidationMessageToOutputInfoMessage(List<ResponseValidationMessage> request)
         {

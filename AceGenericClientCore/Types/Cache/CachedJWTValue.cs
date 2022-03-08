@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace AceGenericClientFramework
+namespace AceGenericClientFramework.Types
 {
-    public class CachedJWTValue
+    internal class CachedJWTValue
     {
         public string access_token { get; set; }
 

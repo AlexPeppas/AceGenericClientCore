@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AceGenericClientFramework.Types;
 
 namespace AceGenericClientFramework
 {
     public interface IAceClientService
     {
-        IAceClientResponse<R> ExecuteGetGeneric<T, R>(IAceClientRequest<T> myNbgRequest);
+        AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
-        IAceClientResponse<R> ExecutePostGeneric<T, R>(IAceClientRequest<T> myNbgRequest);
+        AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
-        IAceClientResponseWithControl<R> ExecutePostWithControl<R, T>(IAceClientRequestWithControl<T> myNbgRequest);
+        AceClientResponseWithControl<R> ExecutePostWithControl<R, T>(AceClientRequestWithControl<T> myNbgRequest);
 
-        IAceClientResponse<R> ExecutePutGeneric<T, R>(IAceClientRequest<T> myNbgRequest);
+        AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest);
     }
 }

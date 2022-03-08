@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Caching;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AceGenericClientFramework.CacheMechanism
 {
-    public static class Cache
+    internal static class Cache
     {
         private static MemoryCache _cache = new MemoryCache("AceGenericClient");
 

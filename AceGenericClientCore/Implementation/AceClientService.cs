@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using AceGenericClientFramework.JWTMechanism;
 using AceGenericClientFramework.Model;
+using AceGenericClientFramework.Types;
 
 namespace AceGenericClientFramework
 {
@@ -33,7 +34,7 @@ namespace AceGenericClientFramework
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BankId", _bankId);
         }
 
-        private void AddClientHeaders(IAceClientRequestHeaders headers)
+        private void AddClientHeaders(AceClientRequestHeaders headers)
         {
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserId", headers.UserId);
             if (string.IsNullOrEmpty(headers.RequestUUID))
@@ -44,13 +45,56 @@ namespace AceGenericClientFramework
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", headers.SecurityToken.ToString());
         }
 
-        public IAceClientResponse<R> ExecuteGetGeneric<T, R>(IAceClientRequest<T> myNbgRequest)
+        public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest)
         {
-            string token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            string token = string.Empty;
+            try
+            {
+                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
             myNbgRequest.SecurityToken = token;
 
             AddClientHeaders(myNbgRequest);
 
+            BuildQueries(myNbgRequest);
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl).Result)
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData)
+                        };
+                    }
+                    else
+                    {
+                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse
+                        };
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private void BuildQueries<T> (AceClientRequest<T> myNbgRequest)
+        {
             var properties = myNbgRequest.AceRequest.GetType().GetProperties();
             if (properties.Count() > 0)
             {
@@ -65,96 +109,111 @@ namespace AceGenericClientFramework
                 string queryString = query.ToString();
                 _baseUrl += $"?{queryString}";
             }
-
-            using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl).Result)
-            {
-                if (aceResponse.IsSuccessStatusCode)
-                {
-                    R result = aceResponse.Content.ReadAsAsync<R>().Result;
-                    return new IAceClientResponse<R>
-                    {
-                        AceResponse = result,
-                        AceError = default(CbsErrorData)
-                    };
-                }
-                else
-                {
-                    var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
-
-                    return new IAceClientResponse<R>
-                    {
-                        AceResponse = default(R),
-                        AceError = errorDataResponse
-                    };
-                }
-            }
         }
 
-        public IAceClientResponse<R> ExecutePostGeneric<T, R>(IAceClientRequest<T> myNbgRequest)
+        public AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest)
         {
-            string token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            string token = string.Empty;
+            try
+            {
+                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
             myNbgRequest.SecurityToken = token;
 
             AddClientHeaders(myNbgRequest);
 
-            using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
+            try
             {
-                if (aceResponse.IsSuccessStatusCode)
+                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
                 {
-                    R result = aceResponse.Content.ReadAsAsync<R>().Result;
-                    return new IAceClientResponse<R>
+                    if (aceResponse.IsSuccessStatusCode)
                     {
-                        AceResponse = result,
-                        AceError = default(CbsErrorData)
-                    };
-                }
-                else
-                {
-                    var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData)
+                        };
+                    }
+                    else
+                    {
+                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
 
-                    return new IAceClientResponse<R>
-                    {
-                        AceResponse = default(R),
-                        AceError = errorDataResponse
-                    };
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse
+                        };
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
-        public IAceClientResponse<R> ExecutePutGeneric<T, R>(IAceClientRequest<T> myNbgRequest)
+        public AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest)
         {
-            string token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            string token = string.Empty;
+            try
+            {
+                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
             myNbgRequest.SecurityToken = token;
 
             AddClientHeaders(myNbgRequest);
 
-            using (HttpResponseMessage aceResponse = AceClient.PutAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
+            try
             {
-                if (aceResponse.IsSuccessStatusCode)
+                using (HttpResponseMessage aceResponse = AceClient.PutAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
                 {
-                    R result = aceResponse.Content.ReadAsAsync<R>().Result;
-                    return new IAceClientResponse<R>
+                    if (aceResponse.IsSuccessStatusCode)
                     {
-                        AceResponse = result,
-                        AceError = default(CbsErrorData)
-                    };
-                }
-                else
-                {
-                    var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData)
+                        };
+                    }
+                    else
+                    {
+                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
 
-                    return new IAceClientResponse<R>
-                    {
-                        AceResponse = default(R),
-                        AceError = errorDataResponse
-                    };
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse
+                        };
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
-        public IAceClientResponseWithControl<R> ExecutePostWithControl<R, T>(IAceClientRequestWithControl<T> myNbgRequest)
+        public AceClientResponseWithControl<R> ExecutePostWithControl<R, T>(AceClientRequestWithControl<T> myNbgRequest)
         {
-            string token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            string token = string.Empty;
+            try
+            {
+                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
             myNbgRequest.SecurityToken = token;
 
             AddClientHeaders(myNbgRequest);
@@ -167,51 +226,59 @@ namespace AceGenericClientFramework
         /// <summary>
         /// Perform string manipulation to recompose the response 
         /// </summary>
-        private IAceClientResponseWithControl<R> ExecutePostWithControlHelperStringManipulation<R, T>(IAceClientRequestWithControl<T> myNbgRequest)
+        private AceClientResponseWithControl<R> ExecutePostWithControlHelperStringManipulation<R, T>(AceClientRequestWithControl<T> myNbgRequest)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
+            
             var validationControls = new RequestValidationControls
             {
                 ExecuteTranIfValid = myNbgRequest.CanBeExecuted,
-                ValidationsFullfiled = requestValidationMessages.ToList()
+                ValidationsFullfiled = requestValidationMessages?.ToList()
             };
 
             //this is the wrapperRequest payload decompose statement
             var wrapperAceRequest = ModelConverter.BuildWrapperRequest<T>(myNbgRequest.AceRequest, validationControls);
 
-            using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, wrapperAceRequest).Result)
+            try
             {
-                if (aceResponse.IsSuccessStatusCode)
+                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, wrapperAceRequest).Result)
                 {
-                    var resultAce = aceResponse.Content.ReadAsStringAsync().Result;
-                    var result = ModelConverter.BuildResponseStringManipulation<R>(resultAce);
-
-                    if (result.ValidationControlsRespo.ExecuteTranIfValid && result.ValidationControlsRespo.AllValidationAreFullfiled)
+                    if (aceResponse.IsSuccessStatusCode)
                     {
-                        return new IAceClientResponseWithControl<R>
+                        var resultAce = aceResponse.Content.ReadAsStringAsync().Result;
+                        var result = ModelConverter.BuildResponseStringManipulation<R>(resultAce);
+
+                        if (result.ValidationControlsRespo.ExecuteTranIfValid && result.ValidationControlsRespo.AllValidationAreFullfiled)
                         {
-                            AceResponse = result.Payload
+                            return new AceClientResponseWithControl<R>
+                            {
+                                AceResponse = result.Payload
+                            };
+                        }
+
+                        var outputInfoMessages = ModelConverter.ValidationMessageToOutputInfoMessage(result.ValidationControlsRespo?.ValidationsRequired);
+
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceResponse = result.Payload,
+                            AceExceptionMessages = outputInfoMessages.Item1,
+                            AceInformationMessages = outputInfoMessages.Item2
                         };
                     }
-
-                    var outputInfoMessages = ModelConverter.ValidationMessageToOutputInfoMessage(result.ValidationControlsRespo?.ValidationsRequired);
-
-                    return new IAceClientResponseWithControl<R>
+                    else
                     {
-                        AceResponse = result.Payload,
-                        AceExceptionMessages = outputInfoMessages.Item1,
-                        AceInformationMessages = outputInfoMessages.Item2
-                    };
-                }
-                else
-                {
-                    var errorResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        var errorResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
 
-                    return new IAceClientResponseWithControl<R>
-                    {
-                        AceError = errorResponse
-                    };
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceError = errorResponse
+                        };
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 

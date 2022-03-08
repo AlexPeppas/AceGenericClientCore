@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AceGenericClientFramework
+﻿
+namespace AceGenericClientFramework.Types
 {
-    public class RequestValidationMessage
+    internal class RequestValidationMessage
     {
         public string ValidationCode;
         public string ValidationType; //Exception / Information

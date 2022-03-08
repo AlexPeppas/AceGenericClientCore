@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>Nbg.Services.ACE.Http.Core</PackageId>
+    <Authors>Peppas Alexandros</Authors>
+    <Company>Deloitte</Company>
+    <Product>AceGenericHttpClient</Product>
+    <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Expose Post, Put, Get and Post with Control methods</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

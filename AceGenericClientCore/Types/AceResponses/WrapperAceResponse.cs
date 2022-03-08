@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AceGenericClientFramework
+﻿
+namespace AceGenericClientFramework.Types
 {
-    public class WrapperAceResponse<R>
+    internal class WrapperAceResponse<R>
     {
         public R Payload { get; set; }
         public ResponseValidationControls ValidationControlsRespo { get; set; }
