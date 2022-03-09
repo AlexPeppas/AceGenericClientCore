@@ -67,8 +67,12 @@ namespace AceGenericClientFramework.JWTMechanism
             
             try
             {
-                using (HttpClient client = new HttpClient { BaseAddress = new Uri(uri) })
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+                
+                using (HttpClient client = new HttpClient(clientHandler) { BaseAddress = new Uri(uri) })
                 {
+                    
                     responseToken = await client.PostAsync(uri, new FormUrlEncodedContent(parameters)).Result.Content.ReadAsStringAsync();
                 }
                 
