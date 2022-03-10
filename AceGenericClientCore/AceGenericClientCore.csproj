@@ -8,8 +8,8 @@
     <Product>AceGenericHttpClient</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Expose Post, Put, Get and Post with Control methods</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <PackageReleaseNotes>JToken retrieved from IDS is not being added in client's headers if a null userId is provided through body request</PackageReleaseNotes>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
