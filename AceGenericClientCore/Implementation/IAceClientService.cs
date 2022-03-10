@@ -1,4 +1,5 @@
 ﻿using AceGenericClientFramework.Types;
+using System.Threading.Tasks;
 
 namespace AceGenericClientFramework
 {
@@ -8,8 +9,16 @@ namespace AceGenericClientFramework
 
         AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
-        AceClientResponseWithControl<R> ExecutePostWithControl<R, T>(AceClientRequestWithControl<T> myNbgRequest);
+        AceClientResponseWithControl<R> ExecutePostWithControl<T,R>(AceClientRequestWithControl<T> myNbgRequest);
 
         AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest);
+
+        Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest);
+
+        Task<AceClientResponse<R>> ExecutePostGenericAsync<T, R>(AceClientRequest<T> myNbgRequest);
+
+        Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsync<T,R>(AceClientRequestWithControl<T> myNbgRequest);
+
+        Task<AceClientResponse<R>> ExecutePutGenericAsync<T, R>(AceClientRequest<T> myNbgRequest);
     }
 }
