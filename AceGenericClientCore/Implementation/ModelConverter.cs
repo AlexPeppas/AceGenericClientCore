@@ -18,15 +18,17 @@ namespace AceGenericClientFramework.Model
                 if (item.ValidationType == "Exception")
                     outputMessage.Add(new OutputMessage
                     {
-                        Code = item.ValidationCode,
-                        Key = item.MinAuthLevel,
-                        Text = item.ValidationDescription
+                        Code = item?.ValidationCode,
+                        Key = item?.MinAuthLevel,
+                        Text = item?.ValidationDescription,
+                        RelatedEntityId = item?.RelatedEntityId,
+                        RelatedEntityType = item?.RelatedEntityType
                     });
                 else if (item.ValidationType == "Information")
                     cbsInfoMessage.Add(new CbsInformationMessage
                     {
-                        Code = item.ValidationCode,
-                        Description = item.ValidationDescription
+                        Code = item?.ValidationCode,
+                        Description = item?.ValidationDescription
                     });
             }
             return new Tuple<OutputMessage[], CbsInformationMessage[]>
@@ -39,9 +41,11 @@ namespace AceGenericClientFramework.Model
             for (int i = 0; i < request.GetLength(0); i++)
             {
                 output[i] = new RequestValidationMessage();
-                output[i].ValidationCode = request[i].Code;
-                output[i].AuthRole = request[i].Key;
-                output[i].AuthUser = request[i].AuthUser;
+                output[i].ValidationCode = request[i]?.Code;
+                output[i].AuthRole = request[i]?.Key;
+                output[i].AuthUser = request[i]?.AuthUser;
+                output[i].RelatedEntityId = request[i]?.RelatedEntityId;
+                output[i].RelatedEntityType = request[i]?.RelatedEntityType;
             }
             return output;
         }

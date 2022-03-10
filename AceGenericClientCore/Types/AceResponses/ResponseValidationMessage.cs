@@ -8,5 +8,7 @@ namespace AceGenericClientFramework.Types
         public string ValidationDescription { get; set; }
         public string MinAuthLevel { get; set; }
         public bool ValidationIsFullfiled { get; set; }
+        public string RelatedEntityId { get; set; }
+        public string RelatedEntityType { get; set; }
     }
 }
