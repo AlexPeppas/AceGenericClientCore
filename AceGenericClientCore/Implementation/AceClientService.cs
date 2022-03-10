@@ -36,13 +36,15 @@ namespace AceGenericClientFramework
 
         private void AddClientHeaders(AceClientRequestHeaders headers)
         {
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserId", headers.UserId);
+            if (headers?.UserId != null)
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserId", headers.UserId);
             if (string.IsNullOrEmpty(headers.RequestUUID))
                 headers.RequestUUID = Guid.NewGuid().ToString();
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", headers.RequestUUID);
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", headers.GlobalUUID ?? headers.RequestUUID);
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", headers.Lang.ToString() ?? Enums.AceClientLang.GRE.ToString());
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", headers.SecurityToken.ToString());
+            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", headers?.RequestUUID);
+            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", headers?.GlobalUUID ?? headers.RequestUUID);
+            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", headers?.Lang.ToString() ?? Enums.AceClientLang.GRE.ToString());
+            if (!string.IsNullOrEmpty(headers?.SecurityToken))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", headers.SecurityToken.ToString());
         }
 
         public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest)
@@ -50,7 +52,8 @@ namespace AceGenericClientFramework
             string token = string.Empty;
             try
             {
-                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.UserId != null)
+                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
             }
             catch(Exception ex)
             {
@@ -120,7 +123,8 @@ namespace AceGenericClientFramework
             string token = string.Empty;
             try
             {
-                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.UserId != null)
+                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
             }
             catch (Exception ex)
             {
@@ -166,7 +170,8 @@ namespace AceGenericClientFramework
             string token = string.Empty;
             try
             {
-                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.UserId != null)
+                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
             }
             catch (Exception ex)
             {
@@ -212,7 +217,8 @@ namespace AceGenericClientFramework
             string token = string.Empty;
             try
             {
-                token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.UserId != null)
+                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
             }
             catch (Exception ex)
             {
