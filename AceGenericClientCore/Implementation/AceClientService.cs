@@ -101,9 +101,13 @@ namespace AceGenericClientFramework
                 var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 foreach (var prop in properties)
                 {
-                    var value = prop.GetValue(myNbgRequest.AceRequest, null).ToString();
-                    if (value != null || !string.IsNullOrEmpty(value))
-                        query.Add(prop.Name.ToString(), value);
+                    var objValue = prop.GetValue(myNbgRequest.AceRequest, null);
+                    if (objValue != null)
+                    {
+                        string value = objValue.ToString();
+                        if (!string.IsNullOrEmpty(value))
+                            query.Add(prop.Name.ToString(), value);
+                    }
                 }
 
                 string queryString = query.ToString();
