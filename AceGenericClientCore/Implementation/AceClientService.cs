@@ -46,6 +46,10 @@ namespace AceGenericClientFramework
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", headers?.Lang.ToString() ?? Enums.AceClientLang.GRE.ToString());
             if (!string.IsNullOrEmpty(headers?.SecurityToken))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", headers.SecurityToken.ToString());
+            if (!string.IsNullOrEmpty(headers?.WorkstationId))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("WorkstationId", headers.WorkstationId);
+            if (!string.IsNullOrEmpty(headers?.BranchId))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BranchId", headers.BranchId);
         }
 
         public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest)
