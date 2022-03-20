@@ -9,7 +9,7 @@
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>PostAsync, PutAsync, GetAsync and PostWithControlsAsync are supported</PackageReleaseNotes>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
   </PropertyGroup>
 

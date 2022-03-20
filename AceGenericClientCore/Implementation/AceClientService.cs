@@ -37,6 +37,12 @@ namespace AceGenericClientFramework
 
         private void AddClientHeaders(AceClientRequestHeaders headers)
         {
+            if (headers?.MockMode != null)
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("mockMode", headers.MockMode);
+            if (headers?.SandboxId != null)
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Sandbox_id", headers.SandboxId);
+            if (headers?.UserName != null)
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserName", headers.UserName);
             if (headers?.UserId != null)
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserId", headers.UserId);
             if (string.IsNullOrEmpty(headers.RequestUUID))
@@ -80,7 +86,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -90,7 +97,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -129,7 +137,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -139,7 +148,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -198,7 +208,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -208,7 +219,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -245,7 +257,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -255,7 +268,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -292,7 +306,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -302,7 +317,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -339,7 +355,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = result,
-                            AceError = default(CbsErrorData)
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -349,7 +366,8 @@ namespace AceGenericClientFramework
                         return new AceClientResponse<R>
                         {
                             AceResponse = default(R),
-                            AceError = errorDataResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                 }
@@ -431,7 +449,8 @@ namespace AceGenericClientFramework
                         {
                             return new AceClientResponseWithControl<R>
                             {
-                                AceResponse = result.Payload
+                                AceResponse = result.Payload,
+                                AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                             };
                         }
 
@@ -441,7 +460,8 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result.Payload,
                             AceExceptionMessages = outputInfoMessages.Item1,
-                            AceInformationMessages = outputInfoMessages.Item2
+                            AceInformationMessages = outputInfoMessages.Item2,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else
@@ -490,7 +510,8 @@ namespace AceGenericClientFramework
                         {
                             return new AceClientResponseWithControl<R>
                             {
-                                AceResponse = result.Payload
+                                AceResponse = result.Payload,
+                                AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                             };
                         }
 
@@ -500,7 +521,8 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result.Payload,
                             AceExceptionMessages = outputInfoMessages.Item1,
-                            AceInformationMessages = outputInfoMessages.Item2
+                            AceInformationMessages = outputInfoMessages.Item2,
+                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
                         };
                     }
                     else

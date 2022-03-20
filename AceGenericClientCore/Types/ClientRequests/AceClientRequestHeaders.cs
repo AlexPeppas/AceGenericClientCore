@@ -17,5 +17,11 @@ namespace AceGenericClientFramework.Types
         public string WorkstationId { get; set; }
 
         public string BranchId { get; set; }
+
+        public string MockMode { get; set; }
+
+        public string SandboxId { get; set; }
+
+        public string UserName { get; set; }
     }
 }
