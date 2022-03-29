@@ -1,5 +1,7 @@
 ﻿
 
+using System.Net;
+
 namespace AceGenericClientFramework.Types
 {
     public class AceClientResponse<R>
@@ -8,6 +10,6 @@ namespace AceGenericClientFramework.Types
 
         public CbsErrorData AceError { get; set; }
 
-        public string AceHttpStatusCode { get; set; }
+        public HttpStatusCode AceHttpStatusCode { get; set; }
     }
 }

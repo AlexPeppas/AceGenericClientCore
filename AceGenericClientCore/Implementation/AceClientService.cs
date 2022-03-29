@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AceGenericClientFramework.JWTMechanism;
 using AceGenericClientFramework.Model;
@@ -87,7 +88,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -98,7 +99,105 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (headers.UserId != null)
+                    token = JWT.RetrieveJWT(headers.UserId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            headers.SecurityToken = token;
+
+            AddClientHeaders(headers);
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = await AceClient.GetAsync(_baseUrl))
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = await aceResponse.Content.ReadAsAsync<R>();
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        var errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (headers.UserId != null)
+                    token = JWT.RetrieveJWT(headers.UserId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            headers.SecurityToken = token;
+
+            AddClientHeaders(headers);
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl).Result)
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -138,7 +237,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -149,7 +248,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -168,12 +267,14 @@ namespace AceGenericClientFramework
                 var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 foreach (var prop in properties)
                 {
+                    var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true).FirstOrDefault()).Name;
+                    var propName = dataMemberName ?? prop.Name; //if dataMember is null
                     var objValue = prop.GetValue(myNbgRequest.AceRequest, null);
                     if (objValue != null)
                     {
                         string value = objValue.ToString();
                         if (!string.IsNullOrEmpty(value))
-                            query.Add(prop.Name.ToString(), value);
+                            query.Add(propName, value);
                     }
                 }
 
@@ -209,7 +310,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -220,7 +321,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -258,7 +359,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -269,7 +370,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -307,7 +408,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -318,7 +419,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -356,7 +457,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = result,
                             AceError = default(CbsErrorData),
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -367,7 +468,7 @@ namespace AceGenericClientFramework
                         {
                             AceResponse = default(R),
                             AceError = errorDataResponse,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -450,7 +551,7 @@ namespace AceGenericClientFramework
                             return new AceClientResponseWithControl<R>
                             {
                                 AceResponse = result.Payload,
-                                AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                                AceHttpStatusCode = aceResponse.StatusCode
                             };
                         }
 
@@ -461,7 +562,7 @@ namespace AceGenericClientFramework
                             AceResponse = result.Payload,
                             AceExceptionMessages = outputInfoMessages.Item1,
                             AceInformationMessages = outputInfoMessages.Item2,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
@@ -511,7 +612,7 @@ namespace AceGenericClientFramework
                             return new AceClientResponseWithControl<R>
                             {
                                 AceResponse = result.Payload,
-                                AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                                AceHttpStatusCode = aceResponse.StatusCode
                             };
                         }
 
@@ -522,7 +623,7 @@ namespace AceGenericClientFramework
                             AceResponse = result.Payload,
                             AceExceptionMessages = outputInfoMessages.Item1,
                             AceInformationMessages = outputInfoMessages.Item2,
-                            AceHttpStatusCode = Convert.ToString(aceResponse.StatusCode)
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                     else
