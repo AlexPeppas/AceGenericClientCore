@@ -75,7 +75,14 @@ namespace AceGenericClientFramework
 
             AddClientHeaders(myNbgRequest);
 
-            BuildQueries(myNbgRequest);
+            try
+            {
+                BuildQueries(myNbgRequest);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+            }
 
             try
             {
@@ -93,7 +100,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -142,7 +154,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -191,7 +208,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -224,7 +246,14 @@ namespace AceGenericClientFramework
 
             AddClientHeaders(myNbgRequest);
 
-            BuildQueries(myNbgRequest);
+            try
+            {
+                BuildQueries(myNbgRequest);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+            }
 
             try
             {
@@ -242,7 +271,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -262,12 +296,12 @@ namespace AceGenericClientFramework
         private void BuildQueries<T> (AceClientRequest<T> myNbgRequest)
         {
             var properties = myNbgRequest.AceRequest.GetType().GetProperties();
-            if (properties.Count() > 0)
+            if (properties?.Count() > 0)
             {
                 var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 foreach (var prop in properties)
                 {
-                    var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true).FirstOrDefault()).Name;
+                    var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true).FirstOrDefault())?.Name;
                     var propName = dataMemberName ?? prop.Name; //if dataMember is null
                     var objValue = prop.GetValue(myNbgRequest.AceRequest, null);
                     if (objValue != null)
@@ -278,7 +312,7 @@ namespace AceGenericClientFramework
                     }
                 }
 
-                string queryString = query.ToString();
+                string queryString = query?.ToString();
                 _baseUrl += $"?{queryString}";
             }
         }
@@ -315,7 +349,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -364,7 +403,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -413,7 +457,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -462,7 +511,12 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponse<R>
                         {
@@ -567,11 +621,17 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponseWithControl<R>
                         {
-                            AceError = errorResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }
@@ -628,11 +688,17 @@ namespace AceGenericClientFramework
                     }
                     else
                     {
-                        var errorResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
 
                         return new AceClientResponseWithControl<R>
                         {
-                            AceError = errorResponse
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
                         };
                     }
                 }

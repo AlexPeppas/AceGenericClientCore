@@ -8,10 +8,8 @@
     <Product>AceGenericHttpClient</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Exposed Get Methods without Ace Body required.
-AceHttpStatusCode changed from string to HttpStatusCode.
-URL in getMethod serializes properties using their datamember name (if applicable)</PackageReleaseNotes>
-    <Version>1.0.5</Version>
+    <PackageReleaseNotes>Handled null Classes without DataMembers attributes and just properties. Added extra handling when receiving not Json error (HTML) and parsing.</PackageReleaseNotes>
+    <Version>1.0.6</Version>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
   </PropertyGroup>
 
