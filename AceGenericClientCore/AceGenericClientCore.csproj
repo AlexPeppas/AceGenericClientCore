@@ -3,13 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>Nbg.Services.ACE.Http.Core</PackageId>
-    <Authors>Peppas Alexandros</Authors>
-    <Company>Deloitte</Company>
+    <Authors>NBG</Authors>
+    <Company>NBG</Company>
     <Product>AceGenericHttpClient</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>PostAsync, PutAsync, GetAsync and PostWithControlsAsync are supported</PackageReleaseNotes>
-    <Version>1.0.4</Version>
+    <PackageReleaseNotes>Exposed Get Methods without Ace Body required.
+AceHttpStatusCode changed from string to HttpStatusCode.
+URL in getMethod serializes properties using their datamember name (if applicable)</PackageReleaseNotes>
+    <Version>1.0.5</Version>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
   </PropertyGroup>
 

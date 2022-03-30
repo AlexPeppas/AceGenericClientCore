@@ -7,6 +7,8 @@ namespace AceGenericClientFramework
     {
         AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
+        AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers);
+
         AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
         AceClientResponseWithControl<R> ExecutePostWithControl<T,R>(AceClientRequestWithControl<T> myNbgRequest);
@@ -14,6 +16,8 @@ namespace AceGenericClientFramework
         AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest);
 
         Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest);
+
+        Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers);
 
         Task<AceClientResponse<R>> ExecutePostGenericAsync<T, R>(AceClientRequest<T> myNbgRequest);
 
