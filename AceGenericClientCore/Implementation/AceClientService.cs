@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,73 +21,67 @@ namespace AceGenericClientFramework
 
         public AceClientService(string BaseUrl, string BankId, string ChannelCode)
         {
+            AceClient = new HttpClient();
             _baseUrl = BaseUrl;
             _bankId = BankId ?? _bankId;
             _channelCode = ChannelCode ?? _channelCode;
-            InitializeClient();
         }
 
-        private void InitializeClient()
+        private void AddClientHeaders(Dictionary<string,string> clientHeaders,string JWT)
         {
-            AceClient = new HttpClient();
+            AceClient.DefaultRequestHeaders.Clear();
             AceClient.DefaultRequestHeaders.Accept.Clear();
             AceClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("ChannelCode", _channelCode);
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BankId", _bankId);
+
+            foreach (var header in clientHeaders)
+            {
+                if (header.Value != null)
+                    AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+            }
+
+            if (!clientHeaders.ContainsKey("RequestUUID"))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", Guid.NewGuid().ToString());
+            if (!clientHeaders.ContainsKey("GlobalUUID"))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", clientHeaders["RequestUUID"]);
+            if (!clientHeaders.ContainsKey("Lang"))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", Enums.AceClientLang.GRE.ToString());
+            if (!string.IsNullOrEmpty(JWT) || JWT!=string.Empty)
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", JWT);
         }
 
-        private void AddClientHeaders(AceClientRequestHeaders headers)
-        {
-            if (headers?.MockMode != null)
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("mockMode", headers.MockMode);
-            if (headers?.SandboxId != null)
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Sandbox_id", headers.SandboxId);
-            if (headers?.UserName != null)
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserName", headers.UserName);
-            if (headers?.UserId != null)
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("UserId", headers.UserId);
-            if (string.IsNullOrEmpty(headers.RequestUUID))
-                headers.RequestUUID = Guid.NewGuid().ToString();
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", headers?.RequestUUID);
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", headers?.GlobalUUID ?? headers.RequestUUID);
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", headers?.Lang.ToString() ?? Enums.AceClientLang.GRE.ToString());
-            if (!string.IsNullOrEmpty(headers?.SecurityToken))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", headers.SecurityToken.ToString());
-            if (!string.IsNullOrEmpty(headers?.WorkstationId))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("WorkstationId", headers.WorkstationId);
-            if (!string.IsNullOrEmpty(headers?.BranchId))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BranchId", headers.BranchId);
-        }
-
-        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest)
+        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url,bool ignoreBody)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers,token);
+
+            if (!ignoreBody)
+            {
+                try
+                {
+                    url = "?"+BuildQueries(myNbgRequest);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+                }
+            }
 
             try
             {
-                BuildQueries(myNbgRequest);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
-            }
-
-            try
-            {
-                using (HttpResponseMessage aceResponse = await AceClient.GetAsync(_baseUrl))
+                using (HttpResponseMessage aceResponse = await AceClient.GetAsync(_baseUrl+url))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -122,7 +117,8 @@ namespace AceGenericClientFramework
             }
         }
 
-        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers)
+        //retired
+        /*public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers)
         {
             string token = string.Empty;
             try
@@ -136,7 +132,7 @@ namespace AceGenericClientFramework
             }
             headers.SecurityToken = token;
 
-            AddClientHeaders(headers);
+            AddClientHeaders(headers,token);
 
             try
             {
@@ -175,8 +171,8 @@ namespace AceGenericClientFramework
                 throw new Exception(ex.Message);
             }
         }
-
-        public AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers)
+        */
+        /* public AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers)
         {
             string token = string.Empty;
             try
@@ -229,35 +225,38 @@ namespace AceGenericClientFramework
                 throw new Exception(ex.Message);
             }
         }
-
-        public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest)
+        */
+        
+        public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest, string url, bool ignoreBody)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            myNbgRequest.SecurityToken = token;
-
-            AddClientHeaders(myNbgRequest);
-
-            try
-            {
-                BuildQueries(myNbgRequest);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            if (!ignoreBody)
+            {
+                try
+                {
+                    url = "?" + BuildQueries(myNbgRequest);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+                }
             }
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl).Result)
+                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl+url).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -293,7 +292,7 @@ namespace AceGenericClientFramework
             }
         }
 
-        private void BuildQueries<T> (AceClientRequest<T> myNbgRequest)
+        private string BuildQueries<T> (AceClientRequest<T> myNbgRequest)
         {
             var properties = myNbgRequest.AceRequest.GetType().GetProperties();
             if (properties?.Count() > 0)
@@ -313,29 +312,29 @@ namespace AceGenericClientFramework
                 }
 
                 string queryString = query?.ToString();
-                _baseUrl += $"?{queryString}";
+                return queryString;
             }
+            return string.Empty;
         }
 
-        public async Task<AceClientResponse<R>> ExecutePostGenericAsync<T, R>(AceClientRequest<T> myNbgRequest)
+        public async Task<AceClientResponse<R>> ExecutePostGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest))
+                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl+url, myNbgRequest.AceRequest))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -371,25 +370,24 @@ namespace AceGenericClientFramework
             }
         }
 
-        public AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest)
+        public AceClientResponse<R> ExecutePostGeneric<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
+                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl+url, myNbgRequest.AceRequest).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -425,25 +423,24 @@ namespace AceGenericClientFramework
             }
         }
 
-        public async Task<AceClientResponse<R>> ExecutePutGenericAsync<T, R>(AceClientRequest<T> myNbgRequest)
+        public async Task<AceClientResponse<R>> ExecutePutGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = await AceClient.PutAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest))
+                using (HttpResponseMessage aceResponse = await AceClient.PutAsJsonAsync<object>(_baseUrl+url, myNbgRequest.AceRequest))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -479,25 +476,24 @@ namespace AceGenericClientFramework
             }
         }
 
-        public AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest)
+        public AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.PutAsJsonAsync<object>(_baseUrl, myNbgRequest.AceRequest).Result)
+                using (HttpResponseMessage aceResponse = AceClient.PutAsJsonAsync<object>(_baseUrl+url, myNbgRequest.AceRequest).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -533,44 +529,42 @@ namespace AceGenericClientFramework
             }
         }
 
-        public async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsync<T,R>(AceClientRequestWithControl<T> myNbgRequest)
+        public async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsync<T,R>(AceClientRequestWithControl<T> myNbgRequest, string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
-            var response = await ExecutePostWithControlHelperStringManipulationAsync<R, T>(myNbgRequest);
+            var response = await ExecutePostWithControlHelperStringManipulationAsync<R, T>(myNbgRequest,url);
 
             return response;
         }
 
-        public AceClientResponseWithControl<R> ExecutePostWithControl<T,R>(AceClientRequestWithControl<T> myNbgRequest)
+        public AceClientResponseWithControl<R> ExecutePostWithControl<T,R>(AceClientRequestWithControl<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
             {
-                if (myNbgRequest.UserId != null)
-                    token = JWT.RetrieveJWT(myNbgRequest.UserId);
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            myNbgRequest.SecurityToken = token;
 
-            AddClientHeaders(myNbgRequest);
+            AddClientHeaders(myNbgRequest.Headers, token);
 
-            var response = ExecutePostWithControlHelperStringManipulation<R, T>(myNbgRequest);
+            var response = ExecutePostWithControlHelperStringManipulation<R, T>(myNbgRequest,url);
 
             return response;
         }
@@ -578,7 +572,7 @@ namespace AceGenericClientFramework
         /// <summary>
         /// Perform string manipulation to recompose the response asynchronously
         /// </summary>
-        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperStringManipulationAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest)
+        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperStringManipulationAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
 
@@ -593,7 +587,7 @@ namespace AceGenericClientFramework
 
             try
             {
-                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl, wrapperAceRequest))
+                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl+url, wrapperAceRequest))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -645,7 +639,7 @@ namespace AceGenericClientFramework
         /// <summary>
         /// Perform string manipulation to recompose the response 
         /// </summary>
-        private AceClientResponseWithControl<R> ExecutePostWithControlHelperStringManipulation<R, T>(AceClientRequestWithControl<T> myNbgRequest)
+        private AceClientResponseWithControl<R> ExecutePostWithControlHelperStringManipulation<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
             
@@ -660,7 +654,7 @@ namespace AceGenericClientFramework
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl, wrapperAceRequest).Result)
+                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl+url, wrapperAceRequest).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -709,5 +703,6 @@ namespace AceGenericClientFramework
             }
         }
 
+        
     }
 }

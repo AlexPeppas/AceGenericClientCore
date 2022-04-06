@@ -1,9 +1,18 @@
 ﻿
 
+using System.Collections.Generic;
+
 namespace AceGenericClientFramework.Types
 {
     public class AceClientRequestHeaders
     {
+        public AceClientRequestHeaders()
+        {
+            Headers = new Dictionary<string, string>();
+        }
+
+        public Dictionary<string,string> Headers { get; set; }
+
         public string UserId { get; set; }
 
         public string GlobalUUID { get; set; }
