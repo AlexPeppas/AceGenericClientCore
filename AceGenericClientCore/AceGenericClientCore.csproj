@@ -11,6 +11,7 @@
     <PackageReleaseNotes>Handled null Classes without DataMembers attributes and just properties. Added extra handling when receiving not Json error (HTML) and parsing.</PackageReleaseNotes>
     <Version>1.0.6</Version>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
