@@ -294,18 +294,34 @@ namespace AceGenericClientFramework
 
         private string BuildQueries<T> (AceClientRequest<T> myNbgRequest)
         {
-            var properties = myNbgRequest.AceRequest.GetType().GetProperties();
+            var properties = myNbgRequest?.AceRequest?.GetType()?.GetProperties();
             if (properties?.Count() > 0)
             {
                 var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 foreach (var prop in properties)
                 {
-                    var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true).FirstOrDefault())?.Name;
+                    var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true)?.FirstOrDefault())?.Name;
                     var propName = dataMemberName ?? prop.Name; //if dataMember is null
                     var objValue = prop.GetValue(myNbgRequest.AceRequest, null);
                     if (objValue != null)
                     {
-                        string value = objValue.ToString();
+                        var objType = objValue?.GetType();
+                        string value = string.Empty;
+                        if (objType == typeof(decimal)) //decimal replace , with .
+                        {
+                            value = ((decimal)objValue).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        else if (objType == typeof(double)) //double replace , with .
+                        {
+                            value = ((double)objValue).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        else if (objType == typeof(DateTime)) // ISO DateTime
+                        {
+                            value = ((DateTime)objValue).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fff");
+                        }
+                        else
+                            value = objValue.ToString();
+
                         if (!string.IsNullOrEmpty(value))
                             query.Add(propName, value);
                     }
