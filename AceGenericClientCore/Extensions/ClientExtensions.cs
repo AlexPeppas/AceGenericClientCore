@@ -1,4 +1,4 @@
-﻿using AceGenericClientFramework;
+﻿using Nbg.NetCore.Services.Ace.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using System;
@@ -28,7 +28,7 @@ namespace AceGenericClientCore.Extensions
             {
                 return new AceClientService(baseAddress??string.Empty, bankId, channelCode);
             })
-            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(timeOutSeconds ?? 60));
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(timeOutSeconds ?? 30));
 
             return services;
         }

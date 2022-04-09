@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageId>Nbg.Services.ACE.Http.Core</PackageId>
+    <PackageId>Nbg.NetCore.Services.Ace.Http</PackageId>
     <Authors>NBG</Authors>
     <Company>NBG</Company>
-    <Product>AceGenericHttpClient</Product>
+    <Product>Nbg.NetCore.Services.Ace.Http</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>Handled null Classes without DataMembers attributes and just properties. Added extra handling when receiving not Json error (HTML) and parsing.</PackageReleaseNotes>
-    <Version>1.0.6</Version>
+    <Version>1.0.7</Version>
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>

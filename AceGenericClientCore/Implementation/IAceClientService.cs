@@ -1,7 +1,7 @@
-﻿using AceGenericClientFramework.Types;
+﻿using Nbg.NetCore.Services.Ace.Http.Types;
 using System.Threading.Tasks;
 
-namespace AceGenericClientFramework
+namespace Nbg.NetCore.Services.Ace.Http
 {
     public interface IAceClientService
     {

@@ -1,10 +1,10 @@
-﻿using AceGenericClientFramework.Types;
+﻿using Nbg.NetCore.Services.Ace.Http.Types;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AceGenericClientFramework.Model
+namespace Nbg.NetCore.Services.Ace.Http.Model
 {
     internal static class ModelConverter
     {

@@ -5,11 +5,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using AceGenericClientFramework.JWTMechanism;
-using AceGenericClientFramework.Model;
-using AceGenericClientFramework.Types;
+using Nbg.NetCore.Services.Ace.Http.JWTMechanism;
+using Nbg.NetCore.Services.Ace.Http.Model;
+using Nbg.NetCore.Services.Ace.Http.Types;
 
-namespace AceGenericClientFramework
+namespace Nbg.NetCore.Services.Ace.Http
 {
     public class AceClientService : IAceClientService
     {

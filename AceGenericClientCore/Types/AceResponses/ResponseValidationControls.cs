@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AceGenericClientFramework.Types
+namespace Nbg.NetCore.Services.Ace.Http.Types
 {
     internal class ResponseValidationControls
     {

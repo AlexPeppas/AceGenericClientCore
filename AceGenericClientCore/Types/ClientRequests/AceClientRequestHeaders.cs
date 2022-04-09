@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace AceGenericClientFramework.Types
+namespace Nbg.NetCore.Services.Ace.Http.Types
 {
     public class AceClientRequestHeaders
     {

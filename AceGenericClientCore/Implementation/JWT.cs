@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using AceGenericClientCore.Properties.Settings;
-using AceGenericClientFramework.CacheMechanism;
-using AceGenericClientFramework.Types;
+using Nbg.NetCore.Services.Ace.Http.CacheMechanism;
+using Nbg.NetCore.Services.Ace.Http.Types;
+using Nbg.NetCore.Services.Ace.Http;
 
-namespace AceGenericClientFramework.JWTMechanism
+namespace Nbg.NetCore.Services.Ace.Http.JWTMechanism
 {
     internal static class JWT
     {

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.Caching;
 
-namespace AceGenericClientFramework.CacheMechanism
+namespace Nbg.NetCore.Services.Ace.Http.CacheMechanism
 {
     internal static class Cache
     {
