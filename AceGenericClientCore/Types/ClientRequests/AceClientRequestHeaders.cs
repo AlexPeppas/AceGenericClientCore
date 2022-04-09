@@ -13,7 +13,8 @@ namespace AceGenericClientFramework.Types
 
         public Dictionary<string,string> Headers { get; set; }
 
-        public string UserId { get; set; }
+        //retired properties
+        /*public string UserId { get; set; }
 
         public string GlobalUUID { get; set; }
 
@@ -31,6 +32,6 @@ namespace AceGenericClientFramework.Types
 
         public string SandboxId { get; set; }
 
-        public string UserName { get; set; }
+        public string UserName { get; set; }*/
     }
 }

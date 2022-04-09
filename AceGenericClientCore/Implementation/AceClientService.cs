@@ -52,7 +52,7 @@ namespace AceGenericClientFramework
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", JWT);
         }
 
-        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url,bool ignoreBody)
+        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
             try
@@ -66,17 +66,14 @@ namespace AceGenericClientFramework
             }
 
             AddClientHeaders(myNbgRequest.Headers,token);
-
-            if (!ignoreBody)
+            
+            try
             {
-                try
-                {
-                    url = "?"+BuildQueries(myNbgRequest);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
-                }
+                url = "?"+BuildQueries(myNbgRequest);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
             }
 
             try
@@ -116,27 +113,25 @@ namespace AceGenericClientFramework
                 throw new Exception(ex.Message);
             }
         }
-
-        //retired
-        /*public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers)
+      
+        public async Task<AceClientResponse<R>> ExecuteGetGenericAsync<R>(AceClientRequestHeaders headers,string url)
         {
             string token = string.Empty;
             try
             {
-                if (headers.UserId != null)
-                    token = JWT.RetrieveJWT(headers.UserId);
+                if (headers.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(headers.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            headers.SecurityToken = token;
 
-            AddClientHeaders(headers,token);
+            AddClientHeaders(headers.Headers,token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = await AceClient.GetAsync(_baseUrl))
+                using (HttpResponseMessage aceResponse = await AceClient.GetAsync(_baseUrl+url))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -171,26 +166,25 @@ namespace AceGenericClientFramework
                 throw new Exception(ex.Message);
             }
         }
-        */
-        /* public AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers)
+        
+        public AceClientResponse<R> ExecuteGetGeneric<R>(AceClientRequestHeaders headers,string url)
         {
             string token = string.Empty;
             try
             {
-                if (headers.UserId != null)
-                    token = JWT.RetrieveJWT(headers.UserId);
+                if (headers.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(headers.Headers["UserId"]);
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            headers.SecurityToken = token;
 
-            AddClientHeaders(headers);
+            AddClientHeaders(headers.Headers, token);
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl).Result)
+                using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl+url).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -225,9 +219,8 @@ namespace AceGenericClientFramework
                 throw new Exception(ex.Message);
             }
         }
-        */
         
-        public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest, string url, bool ignoreBody)
+        public AceClientResponse<R> ExecuteGetGeneric<T, R>(AceClientRequest<T> myNbgRequest, string url)
         {
             string token = string.Empty;
             try
@@ -242,18 +235,15 @@ namespace AceGenericClientFramework
 
             AddClientHeaders(myNbgRequest.Headers, token);
 
-            if (!ignoreBody)
+            try
             {
-                try
-                {
-                    url = "?" + BuildQueries(myNbgRequest);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
-                }
+                url = "?" + BuildQueries(myNbgRequest);
             }
-
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to build query params from request object {Environment.NewLine} {ex.ToString()}");
+            }
+            
             try
             {
                 using (HttpResponseMessage aceResponse = AceClient.GetAsync(_baseUrl+url).Result)
