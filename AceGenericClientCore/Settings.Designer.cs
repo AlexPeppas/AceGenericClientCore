@@ -94,5 +94,14 @@ namespace Nbg.NetCore.Services.Ace.Http {
                 return ((string)(this["custom_credential_employee_code"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int timeOutSeconds {
+            get {
+                return ((int)(this["timeOutSeconds"]));
+            }
+        }
     }
 }

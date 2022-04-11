@@ -19,16 +19,18 @@ namespace AceGenericClientCore.Extensions
         /// url through its provided methods, ExecuteGetGeneric, ExecutePostGeneric etc.</param>
         /// <returns></returns>
         public static IServiceCollection AddAceClient(this IServiceCollection services,
+            string baseAddress = null,
             int? timeOutSeconds = null,
             string bankId = null,
-            string channelCode = null,
-            string baseAddress = null)
+            string channelCode = null
+            )
         {
+            
             services.AddHttpClient<IAceClientService, AceClientService>(client =>
             {
                 return new AceClientService(baseAddress??string.Empty, bankId, channelCode);
             })
-            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(timeOutSeconds ?? 30));
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(timeOutSeconds ?? Settings.ClientSettings.timeOutSeconds));
 
             return services;
         }
