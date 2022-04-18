@@ -4,10 +4,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using Nbg.NetCore.Services.Ace.Http.JWTMechanism;
 using Nbg.NetCore.Services.Ace.Http.Model;
 using Nbg.NetCore.Services.Ace.Http.Types;
+using Newtonsoft.Json;
 
 namespace Nbg.NetCore.Services.Ace.Http
 {
@@ -15,7 +17,7 @@ namespace Nbg.NetCore.Services.Ace.Http
     {
         private static HttpClient AceClient { get; set; }
 
-        private static string _baseUrl;
+        private static string _baseUrl = string.Empty;
         private static string _bankId = "011";
         private static string _channelCode = "MYNBG";
 
@@ -25,6 +27,11 @@ namespace Nbg.NetCore.Services.Ace.Http
             _baseUrl = BaseUrl;
             _bankId = BankId ?? _bankId;
             _channelCode = ChannelCode ?? _channelCode;
+        }
+
+        public AceClientService(HttpClient aceClient)
+        {
+            AceClient = aceClient;
         }
 
         private void AddClientHeaders(Dictionary<string,string> clientHeaders,string JWT)
@@ -42,10 +49,12 @@ namespace Nbg.NetCore.Services.Ace.Http
                     AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
 
+            string requestUUID = Guid.NewGuid().ToString();
+            
             if (!clientHeaders.ContainsKey("RequestUUID"))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", Guid.NewGuid().ToString());
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", requestUUID);
             if (!clientHeaders.ContainsKey("GlobalUUID"))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", clientHeaders["RequestUUID"]);
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", requestUUID);
             if (!clientHeaders.ContainsKey("Lang"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", Enums.AceClientLang.GRE.ToString());
             if (!string.IsNullOrEmpty(JWT) || JWT!=string.Empty)
@@ -323,6 +332,69 @@ namespace Nbg.NetCore.Services.Ace.Http
             return string.Empty;
         }
 
+        public async Task<AceClientResponse<R>> ExecutePostGenericAsStringAsync<T, R>(AceClientRequest<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var json = JsonConvert.SerializeObject
+                (myNbgRequest.AceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = await AceClient.PostAsync(_baseUrl + url, content))
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = await aceResponse.Content.ReadAsAsync<R>();
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
         public async Task<AceClientResponse<R>> ExecutePostGenericAsync<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
@@ -358,6 +430,69 @@ namespace Nbg.NetCore.Services.Ace.Http
 
                         if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
                             errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public AceClientResponse<R> ExecutePostGenericAsString<T, R>(AceClientRequest<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var json = JsonConvert.SerializeObject
+                (myNbgRequest.AceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = AceClient.PostAsync(_baseUrl + url, content).Result)
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
                         else
                             errorDataResponse = default(CbsErrorData);
 
@@ -482,6 +617,69 @@ namespace Nbg.NetCore.Services.Ace.Http
             }
         }
 
+        public async Task<AceClientResponse<R>> ExecutePutGenericAsStringAsync<T, R>(AceClientRequest<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var json = JsonConvert.SerializeObject
+                (myNbgRequest.AceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = await AceClient.PutAsync(_baseUrl + url, content))
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = await aceResponse.Content.ReadAsAsync<R>();
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = await aceResponse.Content.ReadAsAsync<CbsErrorData>();
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public AceClientResponse<R> ExecutePutGeneric<T, R>(AceClientRequest<T> myNbgRequest,string url)
         {
             string token = string.Empty;
@@ -500,6 +698,69 @@ namespace Nbg.NetCore.Services.Ace.Http
             try
             {
                 using (HttpResponseMessage aceResponse = AceClient.PutAsJsonAsync<object>(_baseUrl+url, myNbgRequest.AceRequest).Result)
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        R result = aceResponse.Content.ReadAsAsync<R>().Result;
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = result,
+                            AceError = default(CbsErrorData),
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponse<R>
+                        {
+                            AceResponse = default(R),
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public AceClientResponse<R> ExecutePutGenericAsString<T, R>(AceClientRequest<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var json = JsonConvert.SerializeObject
+                (myNbgRequest.AceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse =  AceClient.PutAsync(_baseUrl + url, content).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {

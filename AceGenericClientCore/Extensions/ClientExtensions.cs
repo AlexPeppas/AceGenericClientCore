@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace AceGenericClientCore.Extensions
+namespace Nbg.NetCore.Services.Ace.Http.Extensions
 {
     public static class ClientExtensions
     {
