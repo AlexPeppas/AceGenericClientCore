@@ -9,5 +9,11 @@ namespace Nbg.NetCore.Services.Ace.Http.Types
             GRE,
             ENG
         }
+
+        public enum SourceSystemCode
+        {
+            MyNBG = 01,
+            ACE  = 02
+        }
     }
 }

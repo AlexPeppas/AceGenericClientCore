@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Nbg.NetCore.Services.Ace.Http.Model
@@ -19,10 +21,11 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
                     outputMessage.Add(new OutputMessage
                     {
                         Code = item?.ValidationCode,
-                        Key = item?.MinAuthLevel,
-                        Text = item?.ValidationDescription,
+                        ActionGroups = item?.MinAuthLevel?.Split(',') ?? new string[0],
+                        Description = item?.ValidationDescription,
                         RelatedEntityId = item?.RelatedEntityId,
-                        RelatedEntityType = item?.RelatedEntityType
+                        RelatedEntityType = item?.RelatedEntityType,
+                        SourceSystemCode = Enums.SourceSystemCode.ACE.ToString()
                     });
                 else if (item.ValidationType == "Information")
                     cbsInfoMessage.Add(new CbsInformationMessage
@@ -42,10 +45,14 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
             {
                 output[i] = new RequestValidationMessage();
                 output[i].ValidationCode = request[i]?.Code;
-                output[i].AuthRole = request[i]?.Key;
+                if (request[i]?.AuthUserActionGroups.Count > 0)
+                    output[i].AuthLevel = string.Join(',', request[i]?.AuthUserActionGroups);
+                else
+                    output[i].AuthLevel = "";
                 output[i].AuthUser = request[i]?.AuthUser;
                 output[i].RelatedEntityId = request[i]?.RelatedEntityId;
                 output[i].RelatedEntityType = request[i]?.RelatedEntityType;
+                output[i].ValidationType = "Exception";
             }
             return output;
         }
@@ -60,7 +67,13 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
 
             foreach (var prop in request.GetType().GetProperties())
             {
-                runtimeDict.Add(prop.Name, prop.GetValue(request));
+                var dataMemberName = ((DataMemberAttribute)prop.GetCustomAttributes(typeof(DataMemberAttribute), true)?.FirstOrDefault())?.Name;
+                var propName = dataMemberName ?? prop.Name; //if dataMember is null
+                var objValue = prop.GetValue(request, null);
+                if (objValue != null)
+                {
+                    runtimeDict.Add(propName, objValue);
+                }
             }
 
             runtimeDict.Add("ValidationControlsRequest", controls);
