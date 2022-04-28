@@ -111,18 +111,24 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
 
             R payloadObject = default(R);
             ResponseValidationControls controlsObject = default(ResponseValidationControls);
-            
+
             if (resultAce.Contains("validationControlsResponse"))
             {
-                payloadString.Append(resultAce.Substring(0, resultAce.IndexOf(",\"validationControlsResponse\"")));
-                payloadString.Append("}");
-                payloadObject = JsonConvert.DeserializeObject<R>(payloadString.ToString());
-            }
-            if (resultAce.Contains("{\"allValidationsAreFulfilled\""))
-            {
-                controlsRespoString.Append(resultAce.Substring(resultAce.IndexOf("{\"allValidationsAreFulfilled\"")));
-                controlsRespoString.Remove(controlsRespoString.Length - 1, 1);
+                if (resultAce.Contains(",\"validationControlsResponse\"")) //there is payload except validationControlsResponse object
+                {
+                    payloadString.Append(resultAce.Substring(0, resultAce.IndexOf(",\"validationControlsResponse\"")));
+                    payloadString.Append("}");
+                    payloadObject = JsonConvert.DeserializeObject<R>(payloadString.ToString());
+                }
+
+                int indexOfControlsObject = resultAce.IndexOf("\"validationControlsResponse\":");
+                int controlResponseLengthToIgnore = "\"validationControlsResponse\":".Length;
+                string controlsResponse = resultAce.Substring(indexOfControlsObject + controlResponseLengthToIgnore);
+
+                controlsRespoString.Append(controlsResponse);
+                controlsRespoString.Remove(controlsRespoString.Length - 1, 1); //remove closing brakcet }
                 controlsObject = JsonConvert.DeserializeObject<ResponseValidationControls>(controlsRespoString.ToString());
+
             }
 
             var result = new WrapperAceResponse<R>();
@@ -130,6 +136,7 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
             result.ValidationControlsRespo = controlsObject;
 
             return result;
+
         }
     }
 }
