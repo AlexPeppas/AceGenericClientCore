@@ -9,7 +9,7 @@
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>Handled null Classes without DataMembers attributes and just properties. Added extra handling when receiving not Json error (HTML) and parsing.</PackageReleaseNotes>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
     <AssemblyVersion>1.0.10.0</AssemblyVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
