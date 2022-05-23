@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -8,10 +8,10 @@
     <Product>Nbg.NetCore.Services.Ace.Http</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Handled null Classes without DataMembers attributes and just properties. Added extra handling when receiving not Json error (HTML) and parsing.</PackageReleaseNotes>
-    <Version>1.0.12</Version>
+    <PackageReleaseNotes>Added bankId and channelCode headers in both constructors of AceClientService class.</PackageReleaseNotes>
+    <Version>1.0.13</Version>
     <AssemblyVersion>1.0.10.0</AssemblyVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

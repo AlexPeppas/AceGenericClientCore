@@ -29,9 +29,11 @@ namespace Nbg.NetCore.Services.Ace.Http
             _channelCode = ChannelCode ?? _channelCode;
         }
 
-        public AceClientService(HttpClient aceClient)
+        public AceClientService(HttpClient aceClient, string BankId = null, string ChannelCode = null)
         {
             AceClient = aceClient;
+            _bankId = BankId ?? _bankId;
+            _channelCode = ChannelCode ?? _channelCode;
         }
 
         private void AddClientHeaders(Dictionary<string,string> clientHeaders,string JWT)
@@ -40,24 +42,31 @@ namespace Nbg.NetCore.Services.Ace.Http
             AceClient.DefaultRequestHeaders.Accept.Clear();
             AceClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("ChannelCode", _channelCode);
-            AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BankId", _bankId);
-
+            
             foreach (var header in clientHeaders)
             {
                 if (header.Value != null)
                     AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
 
+            if (!clientHeaders.ContainsKey("ChannelCode") && !clientHeaders.ContainsKey("channelcode"))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("ChannelCode", _channelCode);
+
+            if (!clientHeaders.ContainsKey("BankId") && !clientHeaders.ContainsKey("bankid"))
+                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BankId", _bankId);
+
             string requestUUID = Guid.NewGuid().ToString();
-            
-            if (!clientHeaders.ContainsKey("RequestUUID"))
+
+            if (!clientHeaders.ContainsKey("RequestUUID") && !clientHeaders.ContainsKey("requestuuid"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("RequestUUID", requestUUID);
-            if (!clientHeaders.ContainsKey("GlobalUUID"))
+
+            if (!clientHeaders.ContainsKey("GlobalUUID") && !clientHeaders.ContainsKey("globaluuid"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("GlobalUUID", requestUUID);
-            if (!clientHeaders.ContainsKey("Lang"))
+
+            if (!clientHeaders.ContainsKey("Lang") && !clientHeaders.ContainsKey("lang"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", Enums.AceClientLang.GRE.ToString());
-            if (!string.IsNullOrEmpty(JWT) || JWT!=string.Empty)
+
+            if (!string.IsNullOrEmpty(JWT) || JWT != string.Empty)
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", JWT);
         }
 
@@ -78,7 +87,7 @@ namespace Nbg.NetCore.Services.Ace.Http
             
             try
             {
-                url = "?"+BuildQueries(myNbgRequest);
+                url += "?"+BuildQueryParams(myNbgRequest);
             }
             catch (Exception ex)
             {
@@ -246,7 +255,7 @@ namespace Nbg.NetCore.Services.Ace.Http
 
             try
             {
-                url = "?" + BuildQueries(myNbgRequest);
+                url += "?" + BuildQueryParams(myNbgRequest);
             }
             catch (Exception ex)
             {
@@ -291,7 +300,7 @@ namespace Nbg.NetCore.Services.Ace.Http
             }
         }
 
-        private string BuildQueries<T> (AceClientRequest<T> myNbgRequest)
+        private string BuildQueryParams<T> (AceClientRequest<T> myNbgRequest)
         {
             var properties = myNbgRequest?.AceRequest?.GetType()?.GetProperties();
             if (properties?.Count() > 0)
