@@ -19,21 +19,18 @@ namespace Nbg.NetCore.Services.Ace.Http
 
         private static string _baseUrl = string.Empty;
         private static string _bankId = "011";
-        private static string _channelCode = "MYNBG";
 
-        public AceClientService(string BaseUrl, string BankId, string ChannelCode)
+        public AceClientService(string BaseUrl, string BankId = null)
         {
             AceClient = new HttpClient();
             _baseUrl = BaseUrl;
             _bankId = BankId ?? _bankId;
-            _channelCode = ChannelCode ?? _channelCode;
         }
 
-        public AceClientService(HttpClient aceClient, string BankId = null, string ChannelCode = null)
+        public AceClientService(HttpClient aceClient, string BankId = null)
         {
             AceClient = aceClient;
             _bankId = BankId ?? _bankId;
-            _channelCode = ChannelCode ?? _channelCode;
         }
 
         private void AddClientHeaders(Dictionary<string,string> clientHeaders,string JWT)
@@ -48,9 +45,6 @@ namespace Nbg.NetCore.Services.Ace.Http
                 if (header.Value != null)
                     AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
-
-            if (!clientHeaders.ContainsKey("ChannelCode") && !clientHeaders.ContainsKey("channelcode"))
-                AceClient.DefaultRequestHeaders.TryAddWithoutValidation("ChannelCode", _channelCode);
 
             if (!clientHeaders.ContainsKey("BankId") && !clientHeaders.ContainsKey("bankid"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("BankId", _bankId);

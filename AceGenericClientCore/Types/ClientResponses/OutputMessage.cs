@@ -8,11 +8,7 @@ namespace Nbg.NetCore.Services.Ace.Http.Types
     {
         public string Code { get; set; }
 
-        //public string Key { get; set; }
-
         public string[] ActionGroups { get; set; }
-
-        //public string Text { get; set; }
 
         public string Description { get; set; }
 

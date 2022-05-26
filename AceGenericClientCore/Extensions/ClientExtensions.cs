@@ -21,14 +21,13 @@ namespace Nbg.NetCore.Services.Ace.Http.Extensions
         public static IServiceCollection AddAceClient(this IServiceCollection services,
             string baseAddress = null,
             int? timeOutSeconds = null,
-            string bankId = null,
-            string channelCode = null
+            string bankId = null
             )
         {
             
             services.AddHttpClient<IAceClientService, AceClientService>(client =>
             {
-                return new AceClientService(baseAddress??string.Empty, bankId, channelCode);
+                return new AceClientService(baseAddress??string.Empty, bankId);
             })
             .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(timeOutSeconds ?? Settings.ClientSettings.timeOutSeconds));
 

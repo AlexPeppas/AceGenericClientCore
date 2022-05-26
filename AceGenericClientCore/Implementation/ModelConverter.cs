@@ -78,7 +78,10 @@ namespace Nbg.NetCore.Services.Ace.Http.Model
 
             runtimeDict.Add("ValidationControlsRequest", controls);
 
-            var serializedObject = JsonConvert.SerializeObject(runtimeDict);
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
+            serializerSettings.NullValueHandling = NullValueHandling.Ignore;
+
+            var serializedObject = JsonConvert.SerializeObject(runtimeDict, serializerSettings);
             var runtimeJObject = Newtonsoft.Json.Linq.JObject.Parse(serializedObject);
             
             return runtimeJObject;
