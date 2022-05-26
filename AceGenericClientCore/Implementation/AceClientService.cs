@@ -32,7 +32,7 @@ namespace Nbg.NetCore.Services.Ace.Http
             AceClient = aceClient;
             _bankId = BankId ?? _bankId;
         }
-
+        
         private void AddClientHeaders(Dictionary<string,string> clientHeaders,string JWT)
         {
             AceClient.DefaultRequestHeaders.Clear();
@@ -42,8 +42,17 @@ namespace Nbg.NetCore.Services.Ace.Http
             
             foreach (var header in clientHeaders)
             {
-                if (header.Value != null)
-                    AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+                var headerLower = header.Key.ToLower();
+                if (headerLower != "userid")
+                {
+                    if (header.Value != null && !AceClient.DefaultRequestHeaders.Contains(headerLower))
+                        AceClient.DefaultRequestHeaders.TryAddWithoutValidation(headerLower, header.Value);
+                }
+                else
+                {
+                    if (header.Value != null)
+                        AceClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+                }
             }
 
             if (!clientHeaders.ContainsKey("BankId") && !clientHeaders.ContainsKey("bankid"))
@@ -60,7 +69,7 @@ namespace Nbg.NetCore.Services.Ace.Http
             if (!clientHeaders.ContainsKey("Lang") && !clientHeaders.ContainsKey("lang"))
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("Lang", Enums.AceClientLang.GRE.ToString());
 
-            if (!string.IsNullOrEmpty(JWT) || JWT != string.Empty)
+            if (!string.IsNullOrEmpty(JWT) || JWT != string.Empty || JWT != null)
                 AceClient.DefaultRequestHeaders.TryAddWithoutValidation("SecurityToken", JWT);
         }
 
