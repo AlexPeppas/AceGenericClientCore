@@ -8,10 +8,10 @@
     <Product>Nbg.NetCore.Services.Ace.Http</Product>
     <Description>Provides a Generic HTTP Client for the integration of the executive application and ACE through REST APIs with Post,Put,Get and PostWithControls actions.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Added bankId and channelCode headers in both constructors of AceClientService class.</PackageReleaseNotes>
-    <Version>1.0.13</Version>
+    <PackageReleaseNotes>Added serializerSettings to ignore null values in postWithControls wrapper request. Added handling for duplicate headers in dictionary</PackageReleaseNotes>
+    <Version>1.0.14</Version>
     <AssemblyVersion>1.0.10.0</AssemblyVersion>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
