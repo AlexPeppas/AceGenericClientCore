@@ -33,7 +33,12 @@ namespace Nbg.NetCore.Services.Ace.Http
 
         AceClientResponseWithControl<R> ExecutePostWithControl<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url);
 
+        AceClientResponseWithControl<R> ExecutePostWithControlAsString<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url);
+
         Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsync<T,R>(AceClientRequestWithControl<T> myNbgRequest, string url);
+
+        Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringAsync<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url);
+
         
     }
 }

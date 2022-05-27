@@ -823,7 +823,7 @@ namespace Nbg.NetCore.Services.Ace.Http
 
             AddClientHeaders(myNbgRequest.Headers, token);
 
-            var response = await ExecutePostWithControlHelperStringManipulationAsync<R, T>(myNbgRequest,url);
+            var response = await ExecutePostWithControlHelperAsync<R, T>(myNbgRequest,url);
 
             return response;
         }
@@ -843,7 +843,7 @@ namespace Nbg.NetCore.Services.Ace.Http
 
             AddClientHeaders(myNbgRequest.Headers, token);
 
-            var response = ExecutePostWithControlHelperStringManipulation<R, T>(myNbgRequest,url);
+            var response = ExecutePostWithControlHelper<R, T>(myNbgRequest,url);
 
             return response;
         }
@@ -851,7 +851,7 @@ namespace Nbg.NetCore.Services.Ace.Http
         /// <summary>
         /// Perform string manipulation to recompose the response asynchronously
         /// </summary>
-        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperStringManipulationAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
+        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
 
@@ -918,7 +918,7 @@ namespace Nbg.NetCore.Services.Ace.Http
         /// <summary>
         /// Perform string manipulation to recompose the response 
         /// </summary>
-        private AceClientResponseWithControl<R> ExecutePostWithControlHelperStringManipulation<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
+        private AceClientResponseWithControl<R> ExecutePostWithControlHelper<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
             
@@ -982,6 +982,200 @@ namespace Nbg.NetCore.Services.Ace.Http
             }
         }
 
-        
+        public async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringAsync<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var response = await ExecutePostWithControlAsStringHelperAsync<R, T>(myNbgRequest, url);
+
+            return response;
+        }
+
+        public AceClientResponseWithControl<R> ExecutePostWithControlAsString<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var response = ExecutePostWithControlAsStringHelper<R, T>(myNbgRequest, url);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Perform string manipulation to recompose the response asynchronously
+        /// </summary>
+        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringHelperAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
+
+            var validationControls = new RequestValidationControls
+            {
+                ExecuteTranIfValid = myNbgRequest.CanBeExecuted,
+                ValidationsFullfiled = requestValidationMessages?.ToList()
+            };
+
+            //this is the wrapperRequest payload decompose statement
+            var wrapperAceRequest = ModelConverter.BuildWrapperRequest<T>(myNbgRequest.AceRequest, validationControls);
+
+            var json = JsonConvert.SerializeObject
+                (wrapperAceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = await AceClient.PostAsync(_baseUrl + url, content))
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        var resultAce = await aceResponse.Content.ReadAsStringAsync();
+                        var result = ModelConverter.BuildResponseStringManipulation<R>(resultAce);
+
+                        if (result.ValidationControlsRespo.ExecuteTranIfValid && result.ValidationControlsRespo.AllValidationAreFullfiled)
+                        {
+                            return new AceClientResponseWithControl<R>
+                            {
+                                AceResponse = result.Payload,
+                                AceHttpStatusCode = aceResponse.StatusCode
+                            };
+                        }
+
+                        var outputInfoMessages = ModelConverter.ValidationMessageToOutputInfoMessage(result.ValidationControlsRespo?.ValidationsRequired);
+
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceResponse = result.Payload,
+                            AceExceptionMessages = outputInfoMessages.Item1,
+                            AceInformationMessages = outputInfoMessages.Item2,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Perform string manipulation to recompose the response 
+        /// </summary>
+        private AceClientResponseWithControl<R> ExecutePostWithControlAsStringHelper<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
+
+            var validationControls = new RequestValidationControls
+            {
+                ExecuteTranIfValid = myNbgRequest.CanBeExecuted,
+                ValidationsFullfiled = requestValidationMessages?.ToList()
+            };
+
+            //this is the wrapperRequest payload decompose statement
+            var wrapperAceRequest = ModelConverter.BuildWrapperRequest<T>(myNbgRequest.AceRequest, validationControls);
+
+            var json = JsonConvert.SerializeObject
+                (wrapperAceRequest,
+                 new JsonSerializerSettings
+                 {
+                     NullValueHandling = NullValueHandling.Ignore,
+                     Formatting = Formatting.Indented,
+                     Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                 });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                using (HttpResponseMessage aceResponse = AceClient.PostAsync(_baseUrl + url, content).Result)
+                {
+                    if (aceResponse.IsSuccessStatusCode)
+                    {
+                        var resultAce = aceResponse.Content.ReadAsStringAsync().Result;
+                        var result = ModelConverter.BuildResponseStringManipulation<R>(resultAce);
+
+                        if (result.ValidationControlsRespo.ExecuteTranIfValid && result.ValidationControlsRespo.AllValidationAreFullfiled)
+                        {
+                            return new AceClientResponseWithControl<R>
+                            {
+                                AceResponse = result.Payload,
+                                AceHttpStatusCode = aceResponse.StatusCode
+                            };
+                        }
+
+                        var outputInfoMessages = ModelConverter.ValidationMessageToOutputInfoMessage(result.ValidationControlsRespo?.ValidationsRequired);
+
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceResponse = result.Payload,
+                            AceExceptionMessages = outputInfoMessages.Item1,
+                            AceInformationMessages = outputInfoMessages.Item2,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                    else
+                    {
+                        CbsErrorData errorDataResponse;
+
+                        if (aceResponse.Content.Headers.ContentType?.MediaType == "application/json")
+                            errorDataResponse = aceResponse.Content.ReadAsAsync<CbsErrorData>().Result;
+                        else
+                            errorDataResponse = default(CbsErrorData);
+
+                        return new AceClientResponseWithControl<R>
+                        {
+                            AceError = errorDataResponse,
+                            AceHttpStatusCode = aceResponse.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
     }
 }
