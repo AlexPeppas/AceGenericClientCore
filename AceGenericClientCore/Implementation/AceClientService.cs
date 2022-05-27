@@ -848,10 +848,50 @@ namespace Nbg.NetCore.Services.Ace.Http
             return response;
         }
 
+        public async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringAsync<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var response = await ExecutePostWithControlAsStringHelperAsync<R, T>(myNbgRequest, url);
+
+            return response;
+        }
+
+        public AceClientResponseWithControl<R> ExecutePostWithControlAsString<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
+        {
+            string token = string.Empty;
+            try
+            {
+                if (myNbgRequest.Headers.ContainsKey("UserId"))
+                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            AddClientHeaders(myNbgRequest.Headers, token);
+
+            var response = ExecutePostWithControlAsStringHelper<R, T>(myNbgRequest, url);
+
+            return response;
+        }
+
         /// <summary>
         /// Perform string manipulation to recompose the response asynchronously
         /// </summary>
-        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
+        private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlHelperAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
 
@@ -866,7 +906,7 @@ namespace Nbg.NetCore.Services.Ace.Http
 
             try
             {
-                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl+url, wrapperAceRequest))
+                using (HttpResponseMessage aceResponse = await AceClient.PostAsJsonAsync<object>(_baseUrl + url, wrapperAceRequest))
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -918,10 +958,10 @@ namespace Nbg.NetCore.Services.Ace.Http
         /// <summary>
         /// Perform string manipulation to recompose the response 
         /// </summary>
-        private AceClientResponseWithControl<R> ExecutePostWithControlHelper<R, T>(AceClientRequestWithControl<T> myNbgRequest,string url)
+        private AceClientResponseWithControl<R> ExecutePostWithControlHelper<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
         {
             var requestValidationMessages = ModelConverter.InputMessageToRequestValidationMessage(myNbgRequest.AceMessages);
-            
+
             var validationControls = new RequestValidationControls
             {
                 ExecuteTranIfValid = myNbgRequest.CanBeExecuted,
@@ -933,7 +973,7 @@ namespace Nbg.NetCore.Services.Ace.Http
 
             try
             {
-                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl+url, wrapperAceRequest).Result)
+                using (HttpResponseMessage aceResponse = AceClient.PostAsJsonAsync<object>(_baseUrl + url, wrapperAceRequest).Result)
                 {
                     if (aceResponse.IsSuccessStatusCode)
                     {
@@ -982,48 +1022,8 @@ namespace Nbg.NetCore.Services.Ace.Http
             }
         }
 
-        public async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringAsync<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
-        {
-            string token = string.Empty;
-            try
-            {
-                if (myNbgRequest.Headers.ContainsKey("UserId"))
-                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
-            AddClientHeaders(myNbgRequest.Headers, token);
-
-            var response = await ExecutePostWithControlAsStringHelperAsync<R, T>(myNbgRequest, url);
-
-            return response;
-        }
-
-        public AceClientResponseWithControl<R> ExecutePostWithControlAsString<T, R>(AceClientRequestWithControl<T> myNbgRequest, string url)
-        {
-            string token = string.Empty;
-            try
-            {
-                if (myNbgRequest.Headers.ContainsKey("UserId"))
-                    token = JWT.RetrieveJWT(myNbgRequest.Headers["UserId"]);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
-            AddClientHeaders(myNbgRequest.Headers, token);
-
-            var response = ExecutePostWithControlAsStringHelper<R, T>(myNbgRequest, url);
-
-            return response;
-        }
-
         /// <summary>
-        /// Perform string manipulation to recompose the response asynchronously
+        /// Perform string manipulation to recompose the response asynchronously and sends string content
         /// </summary>
         private async Task<AceClientResponseWithControl<R>> ExecutePostWithControlAsStringHelperAsync<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
         {
@@ -1100,7 +1100,7 @@ namespace Nbg.NetCore.Services.Ace.Http
         }
 
         /// <summary>
-        /// Perform string manipulation to recompose the response 
+        /// Perform string manipulation to recompose the response and sends string content
         /// </summary>
         private AceClientResponseWithControl<R> ExecutePostWithControlAsStringHelper<R, T>(AceClientRequestWithControl<T> myNbgRequest, string url)
         {
